@@ -11,9 +11,8 @@ __pycache__/
 .pytest_cache/
 
 # Chroma & Vector Store persistent data
-vectorstore/
-chroma_db/
-*.parquet
+# (Included in git for deployment)
+# vectorstore/
 
 # Environment variables & secrets
 .env
