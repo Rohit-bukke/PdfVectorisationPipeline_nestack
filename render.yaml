@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: pdf-retrieval-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: VECTORSTORE_DIR
+        value: /app/vectorstore
+      - key: CHROMA_COLLECTION_NAME
+        value: pdf_documents
+      - key: EMBEDDING_MODEL_NAME
+        value: sentence-transformers/all-MiniLM-L6-v2

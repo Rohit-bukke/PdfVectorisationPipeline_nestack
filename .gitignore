@@ -1,0 +1,31 @@
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Chroma & Vector Store persistent data
+vectorstore/
+chroma_db/
+*.parquet
+
+# Environment variables & secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Model weights cache
+.cache/
+models/
+huggingface/
+
+# System files
+.DS_Store
+Thumbs.db

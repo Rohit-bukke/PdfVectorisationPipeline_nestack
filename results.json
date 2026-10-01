@@ -1,0 +1,86 @@
+[
+  {
+    "query": "What is the difference between AI, Machine Learning, and Deep Learning?",
+    "top_k": 3,
+    "results": [
+      {
+        "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\n4\nTopic 1\nAI, ML, Deep Learning & LLM Basics\nQ.1  What is the difference between AI, Machine Learning, and Deep Learning?\nAns:  AI is the broad goal of building machines that behave intelligently. Machine Learning is a subset of AI\nwhere a system learns patterns from data instead of following hard-coded rules. Deep Learning is a subset\nof ML that uses multi-layer neural networks, which can learn complex patterns directly from raw data\nwithout manual feature engineering.\nQ.2  What is a Large Language Model (LLM)?\nAns:  An LLM is a deep learning model, built on the Transformer architecture, trained on massive amounts\nof text to predict the next token in a sequence. Because it has seen so much text during training, it\nbecomes capable of writing, summarizing, translating, and answering questions in natural language.\nQ.3  What is Generative AI, and how is it different from traditional ML?",
+        "page_number": 4,
+        "score": 0.7189
+      },
+      {
+        "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\n3\nTable of Contents\n01\nAI, ML, Deep Learning & LLM Basics\n02\nSupervised, Unsupervised & Reinforcement Learning\n03\nModel Evaluation Metrics\n04\nClassic Machine Learning Algorithms\n05\nLLM & Transformer Internals\n06\nRetrieval-Augmented Generation (RAG)\n07\nChunking, Embeddings & Vector Databases\n08\nAI Agents\n09\nLangChain, LangGraph & LangSmith\n10\nRAG Evaluation, Failures & Latency\n11\nPython & Backend for AI Systems",
+        "page_number": 3,
+        "score": 1.1636
+      },
+      {
+        "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\n5\nTopic 2\nSupervised, Unsupervised & Reinforcement Learning\nQ.1  What is supervised learning?\nAns:  Supervised learning trains a model on labeled data -- each input comes with a known correct output.\nThe model learns the mapping between them so it can predict the output for new, unseen inputs.\nfrom sklearn.linear_model import LogisticRegression\n \nmodel = LogisticRegression()\nmodel.fit(X_train, y_train) # X_train, y_train are labeled\npreds = model.predict(X_test)\nQ.2  What is unsupervised learning?\nAns:  Unsupervised learning works on data with no labels at all. Instead of predicting a known answer, the\nmodel finds hidden structure in the data on its own -- for example, grouping similar customers together\nusing clustering.\nQ.3  What is the difference between classification and regression?\nAns:  Both are supervised learning tasks, but they predict different kinds of output. Classification predicts a",
+        "page_number": 5,
+        "score": 1.2173
+      }
+    ]
+  },
+  {
+    "query": "How does linear regression work?",
+    "top_k": 3,
+    "results": [
+      {
+        "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\n7\nTopic 4\nClassic Machine Learning Algorithms\nQ.1  How does linear regression work?\nAns:  Linear regression fits a straight line through the data that best predicts a continuous output from one\nor more input features, by minimising the squared difference between predicted and actual values.\nfrom sklearn.linear_model import LinearRegression\n \nmodel = LinearRegression()\nmodel.fit(X_train, y_train)\nprint(model.predict(X_test))\nQ.2  How does logistic regression work, and why is it used for classification?\nAns:  Despite the name, logistic regression is used for classification. It takes a linear combination of the\ninputs and passes it through a sigmoid function, which squashes the output into a probability between 0\nand 1 -- above a threshold, it's classified as one class; below, the other.\nQ.3  How does the K-Nearest Neighbours (KNN) algorithm work?",
+        "page_number": 7,
+        "score": 0.9703
+      },
+      {
+        "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\n5\nTopic 2\nSupervised, Unsupervised & Reinforcement Learning\nQ.1  What is supervised learning?\nAns:  Supervised learning trains a model on labeled data -- each input comes with a known correct output.\nThe model learns the mapping between them so it can predict the output for new, unseen inputs.\nfrom sklearn.linear_model import LogisticRegression\n \nmodel = LogisticRegression()\nmodel.fit(X_train, y_train) # X_train, y_train are labeled\npreds = model.predict(X_test)\nQ.2  What is unsupervised learning?\nAns:  Unsupervised learning works on data with no labels at all. Instead of predicting a known answer, the\nmodel finds hidden structure in the data on its own -- for example, grouping similar customers together\nusing clustering.\nQ.3  What is the difference between classification and regression?\nAns:  Both are supervised learning tasks, but they predict different kinds of output. Classification predicts a",
+        "page_number": 5,
+        "score": 1.4623
+      },
+      {
+        "chunk_text": "Ans:  Both are supervised learning tasks, but they predict different kinds of output. Classification predicts a\ncategory, such as spam or not spam. Regression predicts a continuous number, such as the price of a\nhouse.\nQ.4  What is reinforcement learning?\nAns:  Reinforcement learning is a different paradigm altogether -- an agent takes actions in an environment\nand receives rewards or penalties. Over many attempts, it learns a strategy that maximises the total\nreward, without ever being told the 'correct' action directly.\nQ.5  What is semi-supervised learning, and when would you use it?\nAns:  Semi-supervised learning combines a small amount of labeled data with a much larger amount of\nunlabeled data. It's useful when labeling data is expensive or slow, but you still have plenty of raw,\nunlabeled data available to help the model generalise better.",
+        "page_number": 5,
+        "score": 1.5402
+      }
+    ]
+  },
+  {
+    "query": "What are model evaluation metrics?",
+    "top_k": 3,
+    "results": [
+      {
+        "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\n6\nTopic 3\nModel Evaluation Metrics\nQ.1  What is a confusion matrix?\nAns:  A confusion matrix is a table that breaks predictions into four buckets: True Positive, True Negative,\nFalse Positive, and False Negative. Every other classification metric -- accuracy, precision, recall, F1 -- is\ncalculated directly from these four numbers.\nQ.2  What are precision and recall, and how are they different?\nAns:  Precision answers: of everything the model predicted as positive, how much was actually positive?\nRecall answers: of everything that was actually positive, how much did the model actually find? A model\ncan be high on one and low on the other, which is why both matter together.\nQ.3  Why would you use F1 score instead of plain accuracy?\nAns:  Accuracy can be misleading on imbalanced datasets -- if 95% of emails are 'not spam', a model that\nalways predicts 'not spam' still scores 95% accuracy while catching zero actual spam. F1 score balances",
+        "page_number": 6,
+        "score": 1.2208
+      },
+      {
+        "chunk_text": "retrieve, check if the documents are good enough, and loop back to retrieve again if they aren't.\nQ.5  What is LangSmith used for?\nAns:  LangSmith is an observability and evaluation layer for LLM applications. It traces every step of a run\n-- what was retrieved, what prompt was sent, what the model returned -- so you can debug exactly where\nsomething went wrong, and it supports building evaluation datasets to measure quality over time.",
+        "page_number": 12,
+        "score": 1.366
+      },
+      {
+        "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\n11\nTopic 8\nAI Agents\nQ.1  What is an AI agent, and how is it different from a normal LLM app?\nAns:  A normal LLM app takes one prompt and returns one answer. An agent can decide which tool or\naction to take, use it, look at the result, and repeat that loop -- reasoning through multiple steps -- until it\nreaches a final answer, similar to a personal assistant handling a multi-step task rather than answering a\nsingle question.\nQ.2  What is tool calling / function calling?\nAns:  Tool calling lets an LLM invoke an external function -- a search API, a database query, a calculator --\nas part of its reasoning, instead of only generating text. The model decides which tool to call and with what\narguments, based on a schema you define.\ntool_schema = {\n\"name\": \"get_weather\",\n\"description\": \"Get current weather for a city\",\n\"parameters\": {\"city\": \"string\"}\n}\n# The LLM decides when to call get_weather(city=\"Hyderabad\")",
+        "page_number": 11,
+        "score": 1.4437
+      }
+    ]
+  },
+  {
+    "query": "What is the difference between supervised and unsupervised learning?",
+    "top_k": 3,
+    "results": [
+      {
+        "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\n5\nTopic 2\nSupervised, Unsupervised & Reinforcement Learning\nQ.1  What is supervised learning?\nAns:  Supervised learning trains a model on labeled data -- each input comes with a known correct output.\nThe model learns the mapping between them so it can predict the output for new, unseen inputs.\nfrom sklearn.linear_model import LogisticRegression\n \nmodel = LogisticRegression()\nmodel.fit(X_train, y_train) # X_train, y_train are labeled\npreds = model.predict(X_test)\nQ.2  What is unsupervised learning?\nAns:  Unsupervised learning works on data with no labels at all. Instead of predicting a known answer, the\nmodel finds hidden structure in the data on its own -- for example, grouping similar customers together\nusing clustering.\nQ.3  What is the difference between classification and regression?\nAns:  Both are supervised learning tasks, but they predict different kinds of output. Classification predicts a",
+        "page_number": 5,
+        "score": 0.6477
+      },
+      {
+        "chunk_text": "Ans:  Both are supervised learning tasks, but they predict different kinds of output. Classification predicts a\ncategory, such as spam or not spam. Regression predicts a continuous number, such as the price of a\nhouse.\nQ.4  What is reinforcement learning?\nAns:  Reinforcement learning is a different paradigm altogether -- an agent takes actions in an environment\nand receives rewards or penalties. Over many attempts, it learns a strategy that maximises the total\nreward, without ever being told the 'correct' action directly.\nQ.5  What is semi-supervised learning, and when would you use it?\nAns:  Semi-supervised learning combines a small amount of labeled data with a much larger amount of\nunlabeled data. It's useful when labeling data is expensive or slow, but you still have plenty of raw,\nunlabeled data available to help the model generalise better.",
+        "page_number": 5,
+        "score": 1.0232
+      },
+      {
+        "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\n4\nTopic 1\nAI, ML, Deep Learning & LLM Basics\nQ.1  What is the difference between AI, Machine Learning, and Deep Learning?\nAns:  AI is the broad goal of building machines that behave intelligently. Machine Learning is a subset of AI\nwhere a system learns patterns from data instead of following hard-coded rules. Deep Learning is a subset\nof ML that uses multi-layer neural networks, which can learn complex patterns directly from raw data\nwithout manual feature engineering.\nQ.2  What is a Large Language Model (LLM)?\nAns:  An LLM is a deep learning model, built on the Transformer architecture, trained on massive amounts\nof text to predict the next token in a sequence. Because it has seen so much text during training, it\nbecomes capable of writing, summarizing, translating, and answering questions in natural language.\nQ.3  What is Generative AI, and how is it different from traditional ML?",
+        "page_number": 4,
+        "score": 1.2773
+      }
+    ]
+  }
+]

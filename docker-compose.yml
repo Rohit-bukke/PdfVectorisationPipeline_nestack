@@ -1,0 +1,28 @@
+services:
+  retrieval-api:
+    build: .
+    container_name: pdf_retrieval_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./vectorstore:/app/vectorstore
+      - ./data:/app/data
+    environment:
+      - VECTORSTORE_DIR=/app/vectorstore
+      - CHROMA_COLLECTION_NAME=pdf_documents
+      - EMBEDDING_MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2
+    restart: unless-stopped
+
+  ingest:
+    build: .
+    container_name: pdf_ingest
+    volumes:
+      - ./vectorstore:/app/vectorstore
+      - ./data:/app/data
+    environment:
+      - VECTORSTORE_DIR=/app/vectorstore
+      - CHROMA_COLLECTION_NAME=pdf_documents
+      - EMBEDDING_MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2
+    command: ["python", "ingest.py", "--file", "data/sample.pdf"]
+    profiles:
+      - ingest
