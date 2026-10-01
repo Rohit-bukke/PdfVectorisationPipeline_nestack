@@ -5,8 +5,20 @@ NO LLMs, NO RetrievalQA chains, NO generated answers.
 """
 
 import os
+# Restrict math/tensor thread pools to 1 to stay within Render 512MB RAM limit
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+import gc
 from typing import List, Optional
 from contextlib import asynccontextmanager
+
+import torch
+torch.set_num_threads(1)
 
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
@@ -26,6 +38,7 @@ resources = {}
 def get_vector_store():
     """Initializes and returns the persistent Chroma vector store instance."""
     if "vector_store" not in resources:
+        torch.set_num_threads(1)
         embeddings = HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": "cpu"},
@@ -37,17 +50,21 @@ def get_vector_store():
             embedding_function=embeddings,
             persist_directory=PERSIST_DIRECTORY
         )
+        gc.collect()
     return resources["vector_store"]
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Pre-loads vector store and embeddings on startup for fast responses."""
-    print(f"Initializing Vector Store from '{PERSIST_DIRECTORY}' with model '{EMBEDDING_MODEL_NAME}'...")
-    get_vector_store()
-    print("Vector Store successfully loaded and ready for queries.")
+    """
+    Fast startup lifespan: uvicorn binds and opens the port immediately.
+    Prevents Render 'Port scan timeout reached'. Vector store is loaded lazily on demand.
+    """
+    port = os.getenv("PORT", "8000")
+    print(f"Uvicorn server ready and listening on port {port}. Port scan check will pass immediately.")
     yield
     resources.clear()
+    gc.collect()
 
 
 app = FastAPI(

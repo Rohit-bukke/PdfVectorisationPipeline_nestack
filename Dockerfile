@@ -8,7 +8,13 @@ ENV PYTHONUNBUFFERED=1 \
     HOST=0.0.0.0 \
     VECTORSTORE_DIR=/app/vectorstore \
     CHROMA_COLLECTION_NAME=pdf_documents \
-    EMBEDDING_MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2
+    EMBEDDING_MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2 \
+    OMP_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1 \
+    VECLIB_MAXIMUM_THREADS=1 \
+    NUMEXPR_NUM_THREADS=1 \
+    TOKENIZERS_PARALLELISM=false
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -16,6 +22,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
+# Install CPU-only PyTorch first to prevent installing massive GPU/CUDA binaries (~300MB RAM savings)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Pre-download embedding model weights during build for fast startup
