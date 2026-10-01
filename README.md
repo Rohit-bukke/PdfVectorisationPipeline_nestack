@@ -3,7 +3,7 @@
 A production-ready PDF vectorisation and similarity retrieval service built with **LangChain**, **LangGraph**, **ChromaDB**, and **FastAPI**.
 
 ## Live Deployment
-https://YOUR-REAL-DEPLOYMENT-URL
+https://rohith-nestack-submission.onrender.com
 
 ## Quick Start
 
