@@ -52,6 +52,34 @@ This executes API input validation tests (empty query, whitespace query, out-of-
 
 ---
 
+## Component Choices & Architectural Justification
+
+As required by the assessment specification, here is the rationale for selecting each LangChain component:
+
+### 1. Document Loader: `PyPDFLoader`
+- **Page-Level Metadata Preservation**: `PyPDFLoader` automatically captures physical page numbers in document metadata (`metadata['page']`). This is essential for fulfilling the retrieval API requirement to return 1-indexed `page_number` with every retrieved chunk.
+- **Reliability & Lightweight Footprint**: Pure-Python implementation with zero system-level C dependencies (unlike `UnstructuredPDFLoader` which requires `poppler` and `tesseract`, or `PDFMinerLoader` which has higher parsing overhead).
+- **Idempotent Extraction**: Deterministic text parsing guarantees consistent chunking across repeated ingestion runs.
+
+### 2. Text Splitter: `RecursiveCharacterTextSplitter`
+- **Context-Aware Semantic Splitting**: Splits hierarchically on `["\n\n", "\n", " ", ""]`. It prioritizes keeping paragraphs, question-and-answer pairs, and code blocks intact before falling back to sentence or character-level boundaries.
+- **Justification for `chunk_size = 1000`**:
+  - The assessment document contains technical Q&A with conceptual explanations and code examples.
+  - 1000 characters corresponds to approximately 180–220 words (~200–250 tokens), which is the optimal semantic size to capture an entire question and its complete answer without premature truncation.
+- **Justification for `chunk_overlap = 150`**:
+  - A 150-character (~25–35 words) sliding window ensures that semantic context spanning paragraph boundaries is never lost.
+  - Queries matching terms located near chunk edges retain sufficient surrounding context in adjacent chunks.
+
+### 3. Embedding Model: `sentence-transformers/all-MiniLM-L6-v2`
+- **Dense Semantic Retrieval**: Produces 384-dimensional dense vectors fine-tuned on over 1 billion sentence pairs for semantic similarity and clustering.
+- **Zero API Dependency & Cost**: Fully self-hosted and offline; requires no external API keys (unlike OpenAI or Cohere) and eliminates rate limits, network latency, and billing constraints.
+- **Resource & Latency Optimization**: Extremely fast CPU inference (~15 ms per chunk) and compact memory footprint (~80MB model size), enabling deployment on constrained environments (such as Render free-tier 512MB RAM).
+
+### 4. Vector Store: `ChromaDB` (via `langchain-chroma`)
+- **Native Embedded Persistence**: Chroma persists directly to disk (`./vectorstore`) using embedded SQLite and HNSW indexing, eliminating the need to run an external database daemon (like PgVector or Milvus).
+- **LangChain Integration**: Built-in native support for `similarity_search_with_score()`, returning calibrated similarity distance metrics.
+- **Deterministic Upserts**: Enables deterministic chunk IDs (`{filename}_p{page}_c{index}`), guaranteeing idempotent ingestion without duplicate vectors if `ingest.py` is executed repeatedly.
+
 ## Architecture
 
 ```text
