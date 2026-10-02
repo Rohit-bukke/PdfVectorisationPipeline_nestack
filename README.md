@@ -98,6 +98,31 @@ FastAPI /query
 similarity_search_with_score()
 ```
 
+## LangGraph Ingestion Pipeline
+
+The ingestion pipeline is implemented as a **LangGraph** sequential workflow (`ingest.py`).
+
+### Graph Structure & Node List
+Printed node execution order:
+```text
+START -> load -> split -> embed -> store -> END
+```
+
+### Visual Workflow Diagram
+```mermaid
+graph LR
+    START([START]) --> load["load<br/>(PyPDFLoader)"]
+    load --> split["split<br/>(RecursiveCharacterTextSplitter)"]
+    split --> embed["embed<br/>(HuggingFaceEmbeddings)"]
+    embed --> store["store<br/>(Chroma.add_documents)"]
+    store --> END([END])
+```
+
+- **`load`**: Loads the PDF page-by-page and extracts raw page metadata.
+- **`split`**: Splits pages into 1000-char chunks with 150-char overlap and normalizes 1-indexed `page_number`.
+- **`embed`**: Initializes `sentence-transformers/all-MiniLM-L6-v2` with CPU optimization and vector normalization.
+- **`store`**: Generates deterministic chunk IDs and persists vectors and metadata into the local Chroma directory.
+
 ### Pipeline Details
 
 1. **Ingestion Pipeline (`ingest.py`)**:
