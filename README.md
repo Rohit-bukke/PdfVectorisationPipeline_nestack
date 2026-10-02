@@ -3,7 +3,11 @@
 A production-ready PDF vectorisation and similarity retrieval service built with **LangChain**, **LangGraph**, **ChromaDB**, and **FastAPI**.
 
 ## Live Deployment
-https://rohith-nestack-submission.onrender.com
+- **API URL**: https://rohith-nestack-submission.onrender.com
+- **Interactive Swagger Docs**: https://rohith-nestack-submission.onrender.com/docs
+- **Health Check**: https://rohith-nestack-submission.onrender.com/health
+
+---
 
 ## Quick Start
 
@@ -27,16 +31,24 @@ cp .env.example .env
 ```
 
 ### 2. Ingest PDF Documents
-Ingest the PDF document into the persistent Chroma vector store:
+Ingest the PDF document into the persistent Chroma vector store.
+
+As per assessment specifications, the ingestion script is directly runnable with `--file document.pdf`:
+```bash
+python ingest.py --file document.pdf
+```
+Or for files located in the `data/` directory:
 ```bash
 python ingest.py --file data/sample.pdf
 ```
-Options available:
-- `--chunk-size` (default: `1000`)
-- `--chunk-overlap` (default: `150`)
-- `--persist-dir` (default: `./vectorstore`)
-- `--collection-name` (default: `pdf_documents`)
-- `--model-name` (default: `sentence-transformers/all-MiniLM-L6-v2`)
+
+Available CLI arguments:
+- `--file` (required): Path to the target PDF document
+- `--chunk-size` (default: `1000`): Maximum characters per chunk
+- `--chunk-overlap` (default: `150`): Character overlap between consecutive chunks
+- `--persist-dir` (default: `./vectorstore`): Persistent vector store directory
+- `--collection-name` (default: `pdf_documents`): Chroma collection name
+- `--model-name` (default: `sentence-transformers/all-MiniLM-L6-v2`): Embedding model
 
 ### 3. Run the Retrieval Service
 ```bash
@@ -80,23 +92,7 @@ As required by the assessment specification, here is the rationale for selecting
 - **LangChain Integration**: Built-in native support for `similarity_search_with_score()`, returning calibrated similarity distance metrics.
 - **Deterministic Upserts**: Enables deterministic chunk IDs (`{filename}_p{page}_c{index}`), guaranteeing idempotent ingestion without duplicate vectors if `ingest.py` is executed repeatedly.
 
-## Architecture
-
-```text
-PDF
- ↓
-PyPDFLoader
- ↓
-RecursiveCharacterTextSplitter
- ↓
-HuggingFaceEmbeddings
- ↓
-Chroma
- ↓
-FastAPI /query
- ↓
-similarity_search_with_score()
-```
+---
 
 ## LangGraph Ingestion Pipeline
 
@@ -123,20 +119,51 @@ graph LR
 - **`embed`**: Initializes `sentence-transformers/all-MiniLM-L6-v2` with CPU optimization and vector normalization.
 - **`store`**: Generates deterministic chunk IDs and persists vectors and metadata into the local Chroma directory.
 
-### Pipeline Details
+---
 
-1. **Ingestion Pipeline (`ingest.py`)**:
-   - Structured as an idempotent **LangGraph** sequential workflow:
-     $$\text{START} \longrightarrow \text{load} \longrightarrow \text{split} \longrightarrow \text{embed} \longrightarrow \text{store} \longrightarrow \text{END}$$
-   - **Load**: Extracts text and metadata page-by-page from the source PDF via `PyPDFLoader`.
-   - **Split**: Segments text using `RecursiveCharacterTextSplitter` (chunk size: 1000, overlap: 150) while tracking 1-indexed `page_number` metadata.
-   - **Embed**: Generates dense embeddings locally via `HuggingFaceEmbeddings` using `sentence-transformers/all-MiniLM-L6-v2`.
-   - **Store**: Indexes and persists embeddings into `Chroma` with deterministic chunk IDs for idempotent execution.
+## Pure Retrieval API (No LLM)
 
-2. **Retrieval API (`app.py`)**:
-   - FastAPI microservice that queries the Chroma vector store directly using `similarity_search_with_score()`.
-   - **Pure Retrieval**: Strictly no LLMs, conversational wrappers, or QA chains—returns raw chunk text, original page numbers, and similarity scores.
-   - Validates incoming requests (`query` non-empty, `top_k` between 1 and 20).
+The retrieval service (`app.py`) is a pure vector search API built with **FastAPI**:
+- **Strictly No LLMs**: Does not use `RetrievalQA`, `ConversationalRetrievalChain`, or generative wrappers.
+- **Direct Search**: Calls `vector_store.similarity_search_with_score()` directly.
+- **Input Validation**: Rejects empty strings, whitespace queries, and out-of-range `top_k` values with HTTP `422`.
+
+### API Specification
+
+#### `POST /query`
+Performs vector similarity search against the indexed PDF chunks.
+
+**Request Body**:
+```json
+{
+  "query": "What is the difference between supervised and unsupervised learning?",
+  "top_k": 2
+}
+```
+
+**Sample Output from Provided PDF**:
+```json
+[
+  {
+    "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\n5\nTopic 2\nSupervised, Unsupervised & Reinforcement Learning\nQ.1  What is supervised learning?\nAns:  Supervised learning trains a model on labeled data -- each input comes with a known correct output.\nThe model learns the mapping between them so it can predict the output for new, unseen inputs.\nfrom sklearn.linear_model import LogisticRegression\n \nmodel = LogisticRegression()\nmodel.fit(X_train, y_train) # X_train, y_train are labeled\npreds = model.predict(X_test)\nQ.2  What is unsupervised learning?\nAns:  Unsupervised learning works on data with no labels at all. Instead of predicting a known answer, the\nmodel finds hidden structure in the data on its own -- for example, grouping similar customers together\nusing clustering.\nQ.3  What is the difference between classification and regression?\nAns:  Both are supervised learning tasks, but they predict different kinds of output. Classification predicts a",
+    "page_number": 5,
+    "score": 0.6477
+  },
+  {
+    "chunk_text": "Ans:  Both are supervised learning tasks, but they predict different kinds of output. Classification predicts a\ncategory, such as spam or not spam. Regression predicts a continuous number, such as the price of a\nhouse.\nQ.4  What is reinforcement learning?\nAns:  Reinforcement learning is a different paradigm altogether -- an agent takes actions in an environment\nand receives rewards or penalties. Over many attempts, it learns a strategy that maximises the total\nreward, without ever being told the 'correct' action directly.\nQ.5  What is semi-supervised learning, and when would you use it?\nAns:  Semi-supervised learning combines a small amount of labeled data with a much larger amount of\nunlabeled data. It's useful when labeling data is expensive or slow, but you still have plenty of raw,\nunlabeled data available to help the model generalise better.",
+    "page_number": 5,
+    "score": 0.9850
+  }
+]
+```
+
+#### `GET /health`
+Returns service health status.
+```json
+{
+  "status": "healthy"
+}
+```
 
 ---
 
@@ -144,52 +171,20 @@ graph LR
 
 ```text
 ├── data/
-│   └── sample.pdf             # Input PDF document
+│   ├── document.pdf           # Sample PDF document for ingestion
+│   └── sample.pdf             # Duplicate reference sample PDF
 ├── vectorstore/               # ChromaDB persistent storage directory
-├── app.py                     # FastAPI retrieval server
+├── app.py                     # FastAPI retrieval server (pure vector search)
 ├── ingest.py                  # LangGraph-based ingestion pipeline
-├── generate_results.py        # Validation tests and results generator
-├── results.json               # Real query results and benchmark output
+├── generate_results.py        # Validation tests and benchmark generator
+├── results.json               # Benchmark query results on sample PDF
 ├── requirements.txt           # Python dependencies
 ├── .env.example               # Example environment configuration
 ├── .env                       # Local environment variables
-├── Dockerfile                 # Container image specification
-├── docker-compose.yml         # Multi-service container orchestration
+├── Dockerfile                 # Container image specification (CPU PyTorch optimized)
+├── docker-compose.yml         # Container orchestration for API and ingestion
+├── render.yaml                # Render deployment configuration
 └── .dockerignore              # Files excluded from Docker context
-```
-
----
-
-## API Specification
-
-### `POST /query`
-Performs vector similarity search against the indexed PDF chunks.
-
-#### Request Body
-```json
-{
-  "query": "What is the difference between supervised and unsupervised learning?",
-  "top_k": 3
-}
-```
-
-#### Response Body
-```json
-[
-  {
-    "chunk_text": "REGEN AI PREP\nAI Developer Intern -- Deep Dive Q&A\nTopic 2...",
-    "page_number": 5,
-    "score": 0.6477
-  }
-]
-```
-
-### `GET /health`
-Returns service health status.
-```json
-{
-  "status": "healthy"
-}
 ```
 
 ---
